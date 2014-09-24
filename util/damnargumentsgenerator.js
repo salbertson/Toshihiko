@@ -11,7 +11,7 @@ function genCall(count) {
     var text = "callback(";
     for(var i = 0; i < count; i++) {
         if(i !== 0) text += ", ";
-        text += "arguments[" + i + "]";
+        text += "args[" + i + "]";
     }
     text += ");";
     return text;
@@ -20,7 +20,7 @@ function genCall(count) {
 for(var i = 0; i <= 100; i++) {
     if(i !== 0) text += " else ";
     else text += "    ";
-    text += "if(arguments.length === " + i + ") {\n";
+    text += "if(args.length === " + i + ") {\n";
     text += "        if(async) {\n";
     text += "            process.nectTick(function(){\n";
     text += "                " + genCall(i) + "\n";
