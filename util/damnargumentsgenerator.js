@@ -22,7 +22,7 @@ for(var i = 0; i <= 100; i++) {
     else text += "    ";
     text += "if(args.length === " + i + ") {\n";
     text += "        if(async) {\n";
-    text += "            process.nectTick(function(){\n";
+    text += "            process.nextTick(function(){\n";
     text += "                " + genCall(i) + "\n";
     text += "            });\n";
     text += "        } else {\n";
