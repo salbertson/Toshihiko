@@ -47,7 +47,7 @@ Define a model schema:
 
 ```javascript
 var Model = toshihiko.define(tableName, [
-    { name: "key1", alias: "keyOne", primaryKey: true, type: Toshihiko.Type.Integer },
+    { name: "key1", column: "key_one", primaryKey: true, type: Toshihiko.Type.Integer },
     { name: "key2", type: Toshihiko.Type.String, defaultValue: "Ha~" },
     { name: "key3", type: Toshihiko.Type.Json, defaultValue: [] },
     { name: "key4", validators: [
