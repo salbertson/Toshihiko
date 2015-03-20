@@ -9,7 +9,7 @@ var keywords = require("./sqlkeyword");
 function processQuote(sql, startIdx) {
     var start = sql[startIdx];
     for(var i = startIdx + 1; i < sql.length; i++) {
-        if(sql[i] === '\\') {
+        if(sql[i] === "\\") {
             i++;
             continue;
         }
@@ -54,14 +54,37 @@ function processFragment(fragment, map, forceChange) {
  * sql parse: name to column
  * @param sql
  * @param map
- * @returns {string}
+ * @param [keywordSymbol]
+ * @param [stringSymbol]
+ * @returns {String}
  */
-exports.sqlNameToColumn = function(sql, map) {
+exports.sqlNameToColumn = function(sql, map, keywordSymbol, stringSymbol) {
     var final = "";
     var current = "";
 
+    keywordSymbol = keywordSymbol || "`";
+    stringSymbol = stringSymbol || "\"";
+
     for(var i = 0; i < sql.length; i++) {
-        if(sql[i] === '"' || sql[i] === '\'') {
+        if(sql[i] === keywordSymbol) {
+            if(current) {
+                final += processFragment(current, map);
+                current = "";
+            }
+
+            // the inner sql is certainly
+            // a key or column name!
+            var next = sql.indexOf("`", i + 1);
+            if(-1 === next) {
+                var rest = sql.substr(i + 1);
+                final += "`" + processFragment(rest, map, true);
+                break;
+            }
+
+            var fragment = sql.substring(i + 1, next);
+            final += "`" + processFragment(fragment, map, true) + "`";
+            i = next;
+        } else if(sql[i] === "\"" || sql[i] === "'" || sql[i] === stringSymbol) {
             if(current) {
                 final += processFragment(current, map);
                 current = "";
@@ -72,53 +95,35 @@ exports.sqlNameToColumn = function(sql, map) {
 
             final += wrap;
             i = end;
-        } else if(sql[i] === ',') {
+        } else if(sql[i] === ",") {
             if(current) {
                 final += processFragment(current, map);
                 current = "";
             }
-            final += ',';
-        } else if(sql[i] === ' ') {
+            final += ",";
+        } else if(sql[i] === " ") {
             if(current) {
                 final += processFragment(current, map);
                 current = "";
             }
             final += " ";
-        } else if(sql[i] === '(') {
+        } else if(sql[i] === "(") {
             if(current) {
-                // current + '(',
+                // current + "(",
                 //   eg: xxx(...
-                // we assume it's a function
+                // we assume it"s a function
                 final += current;
                 current = "";
             }
 
-            final += '(';
-        } else if(sql[i] === ')') {
+            final += "(";
+        } else if(sql[i] === ")") {
             if(current) {
                 final += processFragment(current, map);
                 current = "";
             }
 
-            final += ')';
-        } else if(sql[i] === '`') {
-            if(current) {
-                final += processFragment(current, map);
-                current = "";
-            }
-
-            // the inner sql is certainly
-            // a key or column name!
-            var next = sql.indexOf('`', i + 1);
-            if(-1 === next) {
-                var rest = sql.substr(i + 1);
-                final += '`' + processFragment(rest, map, true);
-                break;
-            }
-
-            var fragment = sql.substring(i + 1, next);
-            final += '`' + processFragment(fragment, map, true) + '`';
-            i = next;
+            final += ")";
         } else {
             current += sql[i];
         }
