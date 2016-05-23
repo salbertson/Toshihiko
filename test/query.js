@@ -33,6 +33,11 @@ describe("query object", function () {
     });
 
     describe("generate sql", function() {
+        it("should generate a query via column", function() {
+            var sql = Model.where({ id: { $or: [ 1, 2, 3 ] } }).makeSQL("count");
+            console.log(sql);
+        });
+
         it("should generate a query that support NULL", function() {
             var sql = Model.where({
                 key1: {
